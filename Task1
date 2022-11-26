@@ -1,0 +1,19 @@
+#!/bin/bash
+
+dir=/reports/2022/11
+fil=/reports/2022/11/13.xls
+if [[ -d "$dir" && -e "$fil" ]]
+then
+        echo "directory and files are exist "
+        currenttime=$(date +%H:%M)
+                if [[ "$currenttime" == "00:00" || "$currenttime" == "05:00" ]]
+                then
+                        tar cvf /home/admin/allfiles.gz  /reports/*
+                else
+                        echo "can't backup allfies now"
+
+                fi
+else
+echo "no"
+
+fi
