@@ -1,0 +1,155 @@
+#!/bin/bash
+
+                echo " Enter 1 for funtion to test who you are " 
+                echo "Enter 2 for function to change port number of SSH" 
+                echo "Enter 3 for to disable root" 
+                echo "Enter 4 for update firewall and seliunx with SSH port" 
+                echo "Enter 5 for to add new group" 
+                echo "Enter 6 for add new user" 
+                echo "Enter 7 for create a report" 
+                echo "Enter 8 for check on report permission "
+                echo "Enter 9 for  update and upgrade system"
+                echo "Enter 10 for enable EPEL repository "
+                echo "Enter 12 for cron job to backup files"
+                echo "Enter 13 for add manger user"
+                echo "Enter 14 for sync reports backup"
+
+read -p "enter the function you need to run !! " i
+
+case $i in
+        1)
+                echo "funtion to test who you are "
+
+                $who=whoami
+
+                if [[ $who == "root"  ]]
+                then
+                        echo "you have the permission to run commend "
+               else
+                        echo "you are not authorized to run commend "
+                fi
+                ;;
+
+
+        2)
+                echo "function to change port number of SSH" 
+
+                change-port(){
+
+                echo  "" port 2222 "" >> /etc/ssh/ssh_config
+                yum install policycoreutils
+                semanage port -a -t ssh_port_t -p tcp 2222
+                semanage port -m -t ssh_port_t -p tcp 2222
+                systemctl restart sshd
+                firewall-cmd --add-port=2222/tcp --permanent
+                firewall-cmd --remove-service=ssh --permanent
+
+                }
+                change-port
+
+                ;;
+     3)
+                echo "to disable root" 
+
+                disable-root (){
+                echo "permitRootlogin yes" >> /etc/ssh/sshd_config
+                systemctl restart sshd
+
+                }
+
+                disable-root
+
+                ;;
+
+        4)
+                echo "update firewall and seliunx with SSH port"
+
+                update-seliunx(){
+
+                semanage port -a -t ssh_port_t -p tcp 2222
+                semanage port -m -t ssh_port_t -p tcp 2222
+                systemctl restart sshd
+                firewall-cmd --add-port=2222/tcp --permanent
+                firewall-cmd --remove-service=ssh --permanent
+                      }
+                update-seliunx
+
+                ;;
+        5)
+                echo "to add new group"
+
+                groupadd -g 20000 Audit
+
+                ;;
+        6)
+                echo "add new user"
+
+                user-add(){
+
+                useradd  -g Audit $1
+                passwd $1
+
+                }
+
+                user-add "Noor" "Pa$$w0rd"
+                ;;
+        7)
+                      echo "create a report"
+
+                cd /home/admin
+                mkdir reports/2021-{01..12}-{01..31}.xls
+
+                ;;
+        8)
+                echo "chek on report permission "
+
+                cd /home/admin/reports
+                chmod rw+ug *
+
+                ;;
+        9)
+                echo "to update and upgrade system"
+
+                yum update
+
+                ;;
+        10)
+                echo "enable EPEL repository "
+                                                     
+          yum install EPEL
+                systemctl enable EPEL
+                systemctl start EPEL
+
+                ;;
+        11)
+                echo "install fail2ban and enabled it "
+
+                yum install fail2ban
+                systemctl is-enable fail2ban
+                systemctl enable fail2ban
+                systemctl start fail2ban
+
+
+                ;;
+        12)
+                echo "cron job to backup files"
+
+                 job-cron= $(tar cvf /home/admin/reports/2022.tar.gz  /home/admin/reports/*)
+
+                echo "$job-cron" >> crontab -e
+                      ;;
+        13)
+                echo "add manger user"
+
+                useradd -u 30000
+
+                ;;
+        14)
+                echo "sync reports backup"
+
+                job-cron= $(tar cvf /home/admin/reports/2022.tar.gz  /home/admin/reports/*)
+                echo "$job-cron" >> crontab -e
+                ;;
+        *)
+                echo "invaild option" ;;
+esac
