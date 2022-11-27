@@ -1,0 +1,80 @@
+#!/bin/bash
+
+                echo " Enter 1 for funtion to test who you are " 
+                echo "Enter 2 for function to change port number of SSH" 
+                echo "Enter 3 for to disable root" 
+                echo "Enter 5 for to add new group" 
+                echo "Enter 6 for add new user" 
+                echo "Enter 12 for cron job to backup files"
+
+read -p "enter the function you need to run !! " i
+
+case $i in
+        1)
+                echo "funtion to test who you are "
+
+                $who=whoami
+
+                if [[ $who == "root"  ]]
+                then
+                        echo "you have the permission to run commend "
+                else
+                        echo "you are not authorized to run commend "
+                fi
+                ;;
+
+   2)
+                echo "function to change port number of SSH" 
+
+                change-port(){
+
+                echo  "" port 2222 "" >> /etc/ssh/ssh_config
+                yum install policycoreutils
+                semanage port -a -t ssh_port_t -p tcp 2222
+                semanage port -m -t ssh_port_t -p tcp 2222
+                systemctl restart sshd
+                firewall-cmd --add-port=2222/tcp --permanent
+                firewall-cmd --remove-service=ssh --permanent
+
+                }
+                change-port
+
+                ;;
+
+          3)
+                echo "to disable root" 
+
+                disable-root (){
+                echo "permitRootlogin yes" >> /etc/ssh/sshd_config
+                systemctl restart sshd
+
+                }
+
+                disable-root
+
+                ;;
+
+        6)
+                echo "add new user"
+
+                user-add(){
+
+                useradd  -g Audit $1
+                passwd $1
+
+                }
+
+                user-add "Noor" "Pa$$w0rd"
+     
+             ;;
+        12)
+                echo "cron job to backup files"
+
+                 job-cron= $(tar cvf /home/admin/reports/2022.tar.gz  /home/admin/reports/*)
+
+                echo "$job-cron" >> crontab -e
+
+
+                ;;
+esac
+                          
